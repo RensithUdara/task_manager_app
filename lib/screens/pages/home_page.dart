@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:date_picker_timeline/date_picker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -24,12 +26,26 @@ class _HomePageState extends State<HomePage> {
   DateTime selectedDate = DateTime.parse(DateTime.now().toString());
   final taskController = Get.put(TaskController());
   var notifyHelper;
+  Timer? autoRefreshTimer;
 
   @override
   void initState() {
     super.initState();
     notifyHelper = NotifyHelper();
     notifyHelper.initializeNotification();
+
+    autoRefreshTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      taskController.getTasks(); 
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    autoRefreshTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -80,6 +96,7 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             selectedDate = date;
           });
+          taskController.getTasks();
         },
       ),
     );
