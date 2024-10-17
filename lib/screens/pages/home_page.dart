@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     notifyHelper.initializeNotification();
 
     autoRefreshTimer = Timer.periodic(Duration(seconds: 30), (timer) {
-      taskController.getTasks(); 
+      taskController.getTasks();
       if (mounted) {
         setState(() {});
       }
