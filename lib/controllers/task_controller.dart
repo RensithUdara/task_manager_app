@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:task_management/db/db_helper.dart';
-import 'package:task_management/models/task_model.dart';
+import 'package:task_manager_app/db/db_helper.dart';
+import 'package:task_manager_app/models/task_model.dart';
 
 class TaskController extends GetxController {
   final RxList<Task> taskList = RxList<Task>();

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:task_management/db/db_helper.dart';
-import 'package:task_management/services/theme_services.dart';
-import 'package:task_management/screens/pages/home_page.dart';
-import 'package:task_management/screens/theme.dart';
+import 'package:task_manager_app/db/db_helper.dart';
+import 'package:task_manager_app/screens/pages/home_page.dart';
+import 'package:task_manager_app/screens/theme.dart';
+import 'package:task_manager_app/services/theme_services.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

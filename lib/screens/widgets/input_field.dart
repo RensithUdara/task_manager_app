@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:task_management/screens/theme.dart';
+import 'package:task_manager_app/screens/theme.dart';
 
 class InputField extends StatelessWidget {
   final String title;

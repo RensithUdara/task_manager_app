@@ -7,15 +7,15 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:task_management/controllers/task_controller.dart';
-import 'package:task_management/models/task_model.dart';
-import 'package:task_management/screens/pages/add_task_page.dart';
-import 'package:task_management/screens/size_config.dart';
-import 'package:task_management/screens/theme.dart';
-import 'package:task_management/screens/widgets/custom_button.dart';
-import 'package:task_management/screens/widgets/task_tile.dart';
-import 'package:task_management/services/notification_services.dart';
-import 'package:task_management/services/theme_services.dart';
+import 'package:task_manager_app/controllers/task_controller.dart';
+import 'package:task_manager_app/models/task_model.dart';
+import 'package:task_manager_app/screens/pages/add_task_page.dart';
+import 'package:task_manager_app/screens/size_config.dart';
+import 'package:task_manager_app/screens/theme.dart';
+import 'package:task_manager_app/screens/widgets/custom_button.dart';
+import 'package:task_manager_app/screens/widgets/task_tile.dart';
+import 'package:task_manager_app/services/notification_services.dart';
+import 'package:task_manager_app/services/theme_services.dart';
 
 class HomePage extends StatefulWidget {
   @override

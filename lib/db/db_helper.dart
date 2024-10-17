@@ -1,5 +1,5 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:task_management/models/task_model.dart';
+import 'package:task_manager_app/models/task_model.dart';
 
 class DBHelper {
   static Database? _db;

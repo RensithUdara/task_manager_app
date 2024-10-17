@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_management/screens/theme.dart';
+import 'package:task_manager_app/screens/theme.dart';
 
 class CustomButton extends StatelessWidget {
   final Function? onTap;

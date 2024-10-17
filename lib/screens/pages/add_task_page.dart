@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart'; 
 import 'package:intl/intl.dart';
-import 'package:task_management/controllers/task_controller.dart';
-import 'package:task_management/models/task_model.dart';
-import 'package:task_management/screens/theme.dart';
-import 'package:task_management/screens/widgets/custom_button.dart';
-import 'package:task_management/screens/widgets/input_field.dart';
+import 'package:task_manager_app/controllers/task_controller.dart';
+import 'package:task_manager_app/models/task_model.dart';
+import 'package:task_manager_app/screens/theme.dart';
+import 'package:task_manager_app/screens/widgets/custom_button.dart';
+import 'package:task_manager_app/screens/widgets/input_field.dart';
 
 class AddTaskPage extends StatefulWidget {
   final Task? task;

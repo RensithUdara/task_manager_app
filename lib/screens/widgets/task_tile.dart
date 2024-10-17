@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:task_management/models/task_model.dart';
-import 'package:task_management/screens/size_config.dart';
-import 'package:task_management/screens/theme.dart';
+import 'package:task_manager_app/models/task_model.dart';
+import 'package:task_manager_app/screens/size_config.dart';
+import 'package:task_manager_app/screens/theme.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
