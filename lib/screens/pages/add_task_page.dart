@@ -356,13 +356,25 @@ class _AddTaskPageState extends State<AddTaskPage> {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(2015),
+      firstDate: DateTime.now(), // Prevents selecting past dates
       lastDate: DateTime(2101),
     );
-    if (pickedDate != null) {
+    if (pickedDate != null &&
+        pickedDate.isAfter(DateTime.now().subtract(Duration(days: 1)))) {
       setState(() {
         selectedDate = pickedDate;
       });
+    } else {
+      Get.snackbar(
+        "Invalid Date",
+        "Please select a date today or in the future.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        margin: EdgeInsets.all(20),
+        borderRadius: 10,
+        duration: Duration(seconds: 3),
+      );
     }
   }
 }

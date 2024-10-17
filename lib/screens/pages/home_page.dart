@@ -157,7 +157,18 @@ class _HomePageState extends State<HomePage> {
       child: Obx(() {
         var tasksForSelectedDate = taskController.taskList.where((task) {
           DateTime taskDate = DateFormat.yMd().parse(task.date);
-          return taskDate == selectedDate;
+
+          if (taskDate.isAtSameMomentAs(selectedDate)) {
+            return true;
+          }
+          if (task.repeat == 'Daily') {
+            return true;
+          } else if (task.repeat == 'Weekly') {
+            return taskDate.weekday == selectedDate.weekday;
+          } else if (task.repeat == 'Monthly') {
+            return taskDate.day == selectedDate.day;
+          }
+          return false;
         }).toList();
 
         if (tasksForSelectedDate.isEmpty) {
