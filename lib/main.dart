@@ -6,7 +6,6 @@ import 'package:task_manager_app/screens/pages/home_page.dart';
 import 'package:task_manager_app/screens/theme.dart';
 import 'package:task_manager_app/services/theme_services.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DBHelper.initDb();
