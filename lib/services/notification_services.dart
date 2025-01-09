@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotifyHelper {
