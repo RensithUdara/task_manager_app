@@ -3,7 +3,7 @@ description: Flutter Task Manager Mobile App
 
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.1
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -24,6 +24,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+flutter_icons:
+  image_path: "images/app_logo.png"
+  android: true
+  ios: true
 
 flutter:
   uses-material-design: true
