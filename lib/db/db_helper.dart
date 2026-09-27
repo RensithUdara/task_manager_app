@@ -46,13 +46,16 @@ class DBHelper {
   // Mark a task as completed
   static Future<int> update(int id) async {
     print("update function called");
-    return await _db!.rawUpdate(
-        '''
-    UPDATE tasks   
-    SET isCompleted = ?
-    WHERE id = ?
-    ''',
-        [1, id]);
+    return await updateCompletion(id, 1);
+  }
+
+  static Future<int> updateCompletion(int id, int isCompleted) async {
+    return await _db!.update(
+      _tableName,
+      {'isCompleted': isCompleted},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // Update an existing task (for editing)
