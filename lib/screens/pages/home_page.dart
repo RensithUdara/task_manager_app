@@ -29,7 +29,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final taskController = Get.put(TaskController());
   final TextEditingController searchController = TextEditingController();
-  final NotifyHelper notifyHelper = NotifyHelper();
+  final NotificationService notificationService = NotificationService.instance;
 
   DateTime selectedDate = DateTime.now();
   Timer? autoRefreshTimer;
@@ -39,7 +39,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    notifyHelper.initializeNotification();
+    notificationService.selectedTaskId.addListener(_openSelectedTask);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openSelectedTask());
     searchController.addListener(() {
       setState(() {
         searchTerm = searchController.text.trim().toLowerCase();
@@ -54,6 +55,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     autoRefreshTimer?.cancel();
+    notificationService.selectedTaskId.removeListener(_openSelectedTask);
     searchController.dispose();
     super.dispose();
   }
@@ -94,12 +96,6 @@ class _HomePageState extends State<HomePage> {
         tooltip: 'Switch theme',
         onPressed: () {
           ThemeService().switchTheme();
-          notifyHelper.displayNotification(
-            title: 'Theme Changed',
-            body: Get.isDarkMode
-                ? 'Light theme activated.'
-                : 'Dark theme activated.',
-          );
         },
         icon: Icon(
           Get.isDarkMode ? Icons.light_mode : Icons.dark_mode,
@@ -110,12 +106,17 @@ class _HomePageState extends State<HomePage> {
         'TaskFlow',
         style: headingTextStyle.copyWith(color: primaryClr),
       ),
-      actions: const [
+      actions: [
+        IconButton(
+          tooltip: 'Notification center',
+          onPressed: showNotificationCenter,
+          icon: const Icon(Icons.notifications_none_rounded),
+        ),
         Padding(
-          padding: EdgeInsets.only(right: 16),
+          padding: const EdgeInsets.only(right: 16),
           child: CircleAvatar(
             radius: 22,
-            backgroundImage: AssetImage('images/logo.jpg'),
+            backgroundImage: const AssetImage('images/logo.jpg'),
           ),
         ),
       ],
@@ -508,6 +509,139 @@ class _HomePageState extends State<HomePage> {
   Future<void> openAddTask() async {
     await Get.to(() => const AddTaskPage());
     taskController.getTasks();
+  }
+
+  void _openSelectedTask() {
+    final taskId = notificationService.selectedTaskId.value;
+    if (taskId == null) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await taskController.getTasks();
+      if (!mounted) {
+        return;
+      }
+
+      Task? selectedTask;
+      for (final task in taskController.taskList) {
+        if (task.id == taskId) {
+          selectedTask = task;
+          break;
+        }
+      }
+      notificationService.clearSelectedTask();
+      if (selectedTask != null) {
+        showTaskActions(context, selectedTask);
+      }
+    });
+  }
+
+  Future<void> showNotificationCenter() async {
+    var enabled = await notificationService.notificationsEnabled();
+    var pending = await notificationService.pendingCount();
+    if (!mounted) {
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: Get.isDarkMode ? darkHeaderClr : Colors.white,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            Future<void> refreshStatus() async {
+              final nextEnabled =
+                  await notificationService.notificationsEnabled();
+              final nextPending = await notificationService.pendingCount();
+              if (sheetContext.mounted) {
+                setSheetState(() {
+                  enabled = nextEnabled;
+                  pending = nextPending;
+                });
+              }
+            }
+
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Notifications', style: headingTextStyle),
+                    const SizedBox(height: 6),
+                    Text(
+                      enabled
+                          ? '$pending task reminders scheduled'
+                          : 'Notifications are currently disabled',
+                      style: body2TextStyle,
+                    ),
+                    const SizedBox(height: 18),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: (enabled ? greenClr : orangeClr)
+                            .withValues(alpha: 0.14),
+                        child: Icon(
+                          enabled
+                              ? Icons.notifications_active_outlined
+                              : Icons.notifications_off_outlined,
+                          color: enabled ? greenClr : orangeClr,
+                        ),
+                      ),
+                      title: Text(
+                        enabled ? 'Reminders enabled' : 'Permission needed',
+                        style: titleTextStle,
+                      ),
+                      subtitle: Text(
+                        enabled
+                            ? 'Task reminders use your device timezone.'
+                            : 'Allow notifications to receive task reminders.',
+                        style: body2TextStyle,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final granted =
+                              await notificationService.requestPermissions();
+                          if (granted) {
+                            await notificationService
+                                .syncTasks(taskController.taskList);
+                          }
+                          await refreshStatus();
+                        },
+                        icon: const Icon(Icons.notifications_active_outlined),
+                        label: Text(
+                          enabled ? 'Reschedule reminders' : 'Enable reminders',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          await notificationService.showTestNotification();
+                          await refreshStatus();
+                        },
+                        icon: const Icon(Icons.send_outlined),
+                        label: const Text('Send test notification'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void showTaskActions(BuildContext context, Task task) {
