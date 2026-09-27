@@ -95,130 +95,122 @@ class _AddTaskPageState extends State<AddTaskPage> {
     return Scaffold(
       backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: appBar(),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Get.isDarkMode ? darkHeaderClr : Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(
-                        alpha: Get.isDarkMode ? 0.2 : 0.06,
-                      ),
-                      blurRadius: 16,
-                      offset: Offset(0, 8),
-                    ),
-                  ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 36),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.task == null ? 'Create a task' : 'Update your task',
+                  style: headingTextStyle.copyWith(fontSize: 28),
                 ),
-                child: Row(
+                const SizedBox(height: 5),
+                Text(
+                  DateFormat('EEEE, MMMM d').format(selectedDate),
+                  style: body2TextStyle,
+                ),
+                const SizedBox(height: 24),
+                sectionLabel('Task details'),
+                InputField(
+                  title: "Title",
+                  hint: "What needs to be done?",
+                  controller: titleController,
+                  icon: Icons.check_circle_outline_rounded,
+                ),
+                InputField(
+                  title: "Note",
+                  hint: "Add useful details",
+                  controller: noteController,
+                  icon: Icons.notes_rounded,
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 24),
+                sectionLabel('Schedule'),
+                InputField(
+                  title: "Date",
+                  hint: DateFormat('EEE, MMM d, y').format(selectedDate),
+                  icon: Icons.calendar_today_outlined,
+                  onTap: getDateFromUser,
+                ),
+                Row(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: primaryClr.withValues(alpha: 0.14),
-                      child: Icon(
-                        widget.task == null ? Icons.add_task : Icons.edit_note,
-                        color: primaryClr,
+                    Expanded(
+                      child: InputField(
+                        title: "Start Time",
+                        hint: startTime,
+                        icon: Icons.schedule_rounded,
+                        onTap: () => getTimeFromUser(isStartTime: true),
                       ),
                     ),
                     SizedBox(width: 12),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.task == null
-                                ? "Create a focused task"
-                                : "Update task details",
-                            style: titleTextStle,
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            "Set the date, time, reminders, repeat pattern, and color.",
-                            style: body2TextStyle,
-                          ),
-                        ],
+                      child: InputField(
+                        title: "End Time",
+                        hint: endTime,
+                        icon: Icons.schedule_rounded,
+                        onTap: () => getTimeFromUser(isStartTime: false),
                       ),
                     ),
                   ],
                 ),
-              ),
-              InputField(
-                title: "Title",
-                hint: "Enter title here.",
-                controller: titleController,
-              ),
-              InputField(
-                title: "Note",
-                hint: "Enter note here.",
-                controller: noteController,
-              ),
-              InputField(
-                title: "Date",
-                hint: DateFormat.yMd().format(selectedDate),
-                widget: IconButton(
-                  icon: Icon(Icons.calendar_today, color: Colors.grey),
-                  onPressed: getDateFromUser,
+                const SizedBox(height: 24),
+                sectionLabel('Preferences'),
+                InputField(
+                  title: "Remind",
+                  hint: "$selectedRemind minutes early",
+                  icon: Icons.notifications_none_rounded,
+                  widget: remindDropDown(),
                 ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: InputField(
-                      title: "Start Time",
-                      hint: startTime,
-                      widget: IconButton(
-                        icon: Icon(Icons.access_time, color: Colors.grey),
-                        onPressed: () => getTimeFromUser(isStartTime: true),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: InputField(
-                      title: "End Time",
-                      hint: endTime,
-                      widget: IconButton(
-                        icon: Icon(Icons.access_time, color: Colors.grey),
-                        onPressed: () => getTimeFromUser(isStartTime: false),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              InputField(
-                title: "Remind",
-                hint: "$selectedRemind minutes early",
-                widget: remindDropDown(),
-              ),
-              InputField(
-                title: "Repeat",
-                hint: selectedRepeat,
-                widget: repeatDropDown(),
-              ),
-              SizedBox(height: 18.0),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  colorChips(),
-                  CustomButton(
-                    label: widget.task == null ? "Create Task" : "Update Task",
-                    onTap: validateInputs,
-                  ),
-                ],
-              ),
-              SizedBox(height: 30.0),
-            ],
+                InputField(
+                  title: "Repeat",
+                  hint: selectedRepeat,
+                  icon: Icons.repeat_rounded,
+                  widget: repeatDropDown(),
+                ),
+                const SizedBox(height: 20),
+                colorChips(),
+                const SizedBox(height: 28),
+                CustomButton(
+                  width: double.infinity,
+                  icon: widget.task == null
+                      ? Icons.add_task_rounded
+                      : Icons.save_outlined,
+                  label: widget.task == null ? "Create task" : "Save changes",
+                  onTap: validateInputs,
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget sectionLabel(String label) {
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 18,
+          decoration: BoxDecoration(
+            color: primaryClr,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 9),
+        Text(
+          label.toUpperCase(),
+          style: bodyTextStyle.copyWith(
+            color: primaryClr,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
     );
   }
 
@@ -275,8 +267,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   Widget remindDropDown() {
     return DropdownButton<String>(
-      icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-      iconSize: 32,
+      icon: const Icon(Icons.keyboard_arrow_down_rounded),
+      iconSize: 24,
       elevation: 4,
       style: GoogleFonts.lato(textStyle: subTitleTextStle),
       underline: Container(height: 0),
@@ -296,8 +288,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   Widget repeatDropDown() {
     return DropdownButton<String>(
-      icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-      iconSize: 32,
+      icon: const Icon(Icons.keyboard_arrow_down_rounded),
+      iconSize: 24,
       elevation: 4,
       style: GoogleFonts.lato(textStyle: subTitleTextStle),
       underline: Container(height: 0),
@@ -319,8 +311,11 @@ class _AddTaskPageState extends State<AddTaskPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Color", style: GoogleFonts.lato(textStyle: titleTextStle)),
-        SizedBox(height: 8),
+        Text(
+          "Accent color",
+          style: bodyTextStyle.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 10),
         Wrap(
           children: List<Widget>.generate(3, (int index) {
             final colors = [purpleClr, pinkClr, yellowClr];
@@ -332,15 +327,24 @@ class _AddTaskPageState extends State<AddTaskPage> {
               },
               child: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: CircleAvatar(
-                  radius: 14,
-                  backgroundColor: colors[index],
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: colors[index],
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: index == selectedColor
+                          ? context.theme.colorScheme.onSurface
+                          : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
                   child: index == selectedColor
-                      ? Center(
-                          child:
-                              Icon(Icons.done, color: Colors.white, size: 18),
-                        )
-                      : Container(),
+                      ? const Icon(Icons.done_rounded,
+                          color: Colors.white, size: 18)
+                      : null,
                 ),
               ),
             );
@@ -354,30 +358,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
     return AppBar(
       elevation: 0,
       backgroundColor: context.theme.scaffoldBackgroundColor,
-      leading: GestureDetector(
-        onTap: () {
-          Get.back();
-        },
-        child: Icon(Icons.arrow_back_ios, size: 24, color: primaryClr),
+      toolbarHeight: 68,
+      leading: IconButton(
+        tooltip: 'Back',
+        onPressed: Get.back,
+        icon: const Icon(Icons.arrow_back_rounded),
       ),
       title: Text(
         widget.task == null ? 'New Task' : 'Edit Task',
-        style: GoogleFonts.lato(
-          textStyle: TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-            color: primaryClr,
-          ),
-        ),
+        style: titleTextStle,
       ),
-      centerTitle: true,
-      actions: [
-        CircleAvatar(
-          radius: 30,
-          backgroundImage: AssetImage("images/logo.jpg"),
-        ),
-        SizedBox(width: 20),
-      ],
+      centerTitle: false,
     );
   }
 
