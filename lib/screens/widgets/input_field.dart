@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_app/screens/theme.dart';
 
 class InputField extends StatelessWidget {
@@ -6,46 +7,61 @@ class InputField extends StatelessWidget {
   final TextEditingController? controller;
   final String hint;
   final Widget? widget;
-  final IconData? icon;
-  final int maxLines;
-  final VoidCallback? onTap;
 
   const InputField({
-    super.key,
     required this.title,
     this.controller,
     required this.hint,
     this.widget,
-    this.icon,
-    this.maxLines = 1,
-    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
+    return Container(
+      margin: const EdgeInsets.only(top: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: bodyTextStyle.copyWith(fontWeight: FontWeight.w700),
+            style: titleTextStle,
           ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: controller,
-            readOnly: widget != null || onTap != null,
-            onTap: onTap,
-            maxLines: maxLines,
-            minLines: maxLines,
-            cursorColor: primaryClr,
-            style: bodyTextStyle.copyWith(fontSize: 15),
-            decoration: InputDecoration(
-              hintText: hint,
-              prefixIcon: icon == null ? null : Icon(icon, size: 20),
-              suffixIcon: widget,
-              alignLabelWithHint: maxLines > 1,
+          const SizedBox(height: 8.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0),
+            height: 52,
+            decoration: BoxDecoration(
+              border: Border.all(
+                width: 1.0,
+                color: Colors.grey,
+              ),
+              borderRadius: BorderRadius.circular(12.0),
+              color: Get.isDarkMode ? Colors.black12 : Colors.white,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    autofocus: false,
+                    cursorColor: Get.isDarkMode ? Colors.grey[100] : Colors.grey[600],
+                    readOnly: widget != null,
+                    controller: controller,
+                    style: subTitleTextStle,
+                    decoration: InputDecoration(
+                      hintText: hint,
+                      hintStyle: subTitleTextStle.copyWith(
+                        color: Colors.grey.shade500,
+                      ),
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.only(bottom: 5),
+                    ),
+                  ),
+                ),
+                widget ?? Container(),
+              ],
             ),
           ),
         ],
