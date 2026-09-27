@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:task_manager_app/models/task_model.dart';
 import 'package:task_manager_app/screens/size_config.dart';
@@ -6,90 +7,144 @@ import 'package:task_manager_app/screens/theme.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
-  TaskTile(this.task);
+  const TaskTile(this.task, {super.key});
 
   @override
   Widget build(BuildContext context) {
+    final accentColor = _getBGClr(task.color);
+    final completed = task.isCompleted == 1;
+
     return Container(
-      padding:
-          EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
       width: SizeConfig.screenWidth,
-      margin: EdgeInsets.only(bottom: getProportionateScreenHeight(12)),
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: _getBGClr(task.color),
+      margin: EdgeInsets.fromLTRB(
+        getProportionateScreenWidth(20),
+        0,
+        getProportionateScreenWidth(20),
+        getProportionateScreenHeight(12),
+      ),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Get.isDarkMode ? darkHeaderClr : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: completed
+              ? greenClr.withValues(alpha: 0.35)
+              : accentColor.withValues(alpha: 0.35),
         ),
-        child: Row(children: [
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: Get.isDarkMode ? 0.18 : 0.05,
+            ),
+            blurRadius: 14,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 5,
+            height: 82,
+            decoration: BoxDecoration(
+              color: completed ? greenClr : accentColor,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  task.title,
-                  style: GoogleFonts.lato(
-                    textStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                ),
-                SizedBox(
-                  height: 6,
-                ),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.alarm,
-                      color: Colors.grey[200],
-                      size: 15,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      "${task.startTime} - ${task.endTime}",
-                      style: GoogleFonts.lato(
-                        textStyle:
-                            TextStyle(fontSize: 13, color: Colors.grey[100]),
+                    Expanded(
+                      child: Text(
+                        task.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.lato(
+                          textStyle: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: Get.isDarkMode ? Colors.white : darkGreyClr,
+                            decoration: completed
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                          ),
+                        ),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      completed
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: completed ? greenClr : accentColor,
                     ),
                   ],
                 ),
-                SizedBox(height: 6),
-                Text(
-                  task.note,
-                  style: GoogleFonts.lato(
-                    textStyle: TextStyle(fontSize: 12, color: Colors.grey[100]),
-                  ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _infoPill(
+                      icon: Icons.schedule,
+                      label: '${task.startTime} - ${task.endTime}',
+                    ),
+                    if (task.repeat != 'None')
+                      _infoPill(
+                        icon: Icons.repeat,
+                        label: task.repeat,
+                      ),
+                    _infoPill(
+                      icon: Icons.notifications_none,
+                      label: '${task.remind}m',
+                    ),
+                  ],
                 ),
+                if (task.note.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    task.note,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: body2TextStyle,
+                  ),
+                ],
               ],
             ),
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            height: 60,
-            width: 0.5,
-            color: Colors.grey[200]!.withOpacity(0.7),
-          ),
-          RotatedBox(
-            quarterTurns: 3,
-            child: Text(
-              task.isCompleted == 1 ? "COMPLETED" : "TODO",
-              style: GoogleFonts.lato(
-                textStyle: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-            ),
-          ),
-        ]),
+        ],
       ),
     );
   }
 
-  _getBGClr(int no) {
+  Widget _infoPill({
+    required IconData icon,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      decoration: BoxDecoration(
+        color: Get.isDarkMode ? Colors.white10 : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: Get.isDarkMode ? Colors.white70 : null),
+          const SizedBox(width: 5),
+          Text(label, style: body2TextStyle.copyWith(fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  Color _getBGClr(int no) {
     switch (no) {
       case 0:
         return purpleClr;
@@ -98,7 +153,7 @@ class TaskTile extends StatelessWidget {
       case 2:
         return yellowClr;
       default:
-        return purpleClr;
+        return primaryClr;
     }
   }
 }
