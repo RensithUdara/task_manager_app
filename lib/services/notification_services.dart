@@ -221,16 +221,19 @@ class NotificationService {
         while (!scheduled.isAfter(now)) {
           scheduled = scheduled.add(const Duration(days: 1));
         }
+        break;
       case 'Weekly':
         components = DateTimeComponents.dayOfWeekAndTime;
         while (!scheduled.isAfter(now)) {
           scheduled = scheduled.add(const Duration(days: 7));
         }
+        break;
       case 'Monthly':
         components = DateTimeComponents.dayOfMonthAndTime;
         while (!scheduled.isAfter(now)) {
           scheduled = _nextValidMonth(scheduled);
         }
+        break;
       default:
         if (!scheduled.isAfter(now)) {
           return null;

@@ -100,9 +100,15 @@ class TaskTile extends StatelessWidget {
                         icon: Icons.repeat,
                         label: task.repeat,
                       ),
+                    if (task.reminderEnabled)
+                      _infoPill(
+                        icon: Icons.notifications_none,
+                        label: '${task.remind}m',
+                      ),
                     _infoPill(
-                      icon: Icons.notifications_none,
-                      label: '${task.remind}m',
+                      icon: _priorityIcon(task.priority),
+                      label: '${task.priority} priority',
+                      color: _priorityColor(task.priority),
                     ),
                   ],
                 ),
@@ -126,6 +132,7 @@ class TaskTile extends StatelessWidget {
   Widget _infoPill({
     required IconData icon,
     required String label,
+    Color? color,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
@@ -136,12 +143,32 @@ class TaskTile extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: Get.isDarkMode ? Colors.white70 : null),
+          Icon(
+            icon,
+            size: 14,
+            color: color ?? (Get.isDarkMode ? Colors.white70 : null),
+          ),
           const SizedBox(width: 5),
           Text(label, style: body2TextStyle.copyWith(fontSize: 12)),
         ],
       ),
     );
+  }
+
+  IconData _priorityIcon(String priority) {
+    return priority == 'High'
+        ? Icons.keyboard_double_arrow_up
+        : priority == 'Low'
+            ? Icons.keyboard_arrow_down
+            : Icons.remove;
+  }
+
+  Color _priorityColor(String priority) {
+    return priority == 'High'
+        ? Colors.redAccent
+        : priority == 'Low'
+            ? greenClr
+            : orangeClr;
   }
 
   Color _getBGClr(int no) {
