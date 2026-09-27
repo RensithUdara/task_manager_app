@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart'; 
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:task_manager_app/controllers/task_controller.dart';
 import 'package:task_manager_app/models/task_model.dart';
@@ -29,7 +29,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   int selectedRemind = 5;
   String selectedRepeat = 'None';
 
-  List<int> remindList = [5, 10, 15, 20];
+  List<int> remindList = [5, 10, 15, 20, 30, 60];
   List<String> repeatList = ['None', 'Daily', 'Weekly', 'Monthly'];
 
   @override
@@ -65,6 +65,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    if (widget.task != null) {
+      return;
+    }
+
     final now = TimeOfDay.now();
     final oneHourLater = now.replacing(
       hour: (now.hour + 1) % 24,
@@ -80,6 +84,13 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   @override
+  void dispose() {
+    titleController.dispose();
+    noteController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.theme.scaffoldBackgroundColor,
@@ -90,7 +101,54 @@ class _AddTaskPageState extends State<AddTaskPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 5),
+              SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Get.isDarkMode ? darkHeaderClr : Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                        alpha: Get.isDarkMode ? 0.2 : 0.06,
+                      ),
+                      blurRadius: 16,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: primaryClr.withValues(alpha: 0.14),
+                      child: Icon(
+                        widget.task == null ? Icons.add_task : Icons.edit_note,
+                        color: primaryClr,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.task == null
+                                ? "Create a focused task"
+                                : "Update task details",
+                            style: titleTextStle,
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            "Set the date, time, reminders, repeat pattern, and color.",
+                            style: body2TextStyle,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               InputField(
                 title: "Title",
                 hint: "Enter title here.",
@@ -165,13 +223,13 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   validateInputs() {
-    if (titleController.text.isNotEmpty && noteController.text.isNotEmpty) {
+    if (titleController.text.trim().isNotEmpty) {
       addOrUpdateTask();
       Get.back();
     } else {
       Get.snackbar(
         "Required",
-        "Please fill all the fields before proceeding.",
+        "Please enter a task title before proceeding.",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -186,8 +244,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
     if (widget.task == null) {
       await taskController.addTask(
         Task(
-          note: noteController.text,
-          title: titleController.text,
+          note: noteController.text.trim(),
+          title: titleController.text.trim(),
           date: DateFormat.yMd().format(selectedDate),
           startTime: startTime,
           endTime: endTime,
@@ -201,8 +259,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
       taskController.updateTask(
         Task(
           id: widget.task!.id,
-          note: noteController.text,
-          title: titleController.text,
+          note: noteController.text.trim(),
+          title: titleController.text.trim(),
           date: DateFormat.yMd().format(selectedDate),
           startTime: startTime,
           endTime: endTime,
@@ -265,6 +323,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         SizedBox(height: 8),
         Wrap(
           children: List<Widget>.generate(3, (int index) {
+            final colors = [purpleClr, pinkClr, yellowClr];
             return GestureDetector(
               onTap: () {
                 setState(() {
@@ -275,14 +334,11 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 padding: const EdgeInsets.only(right: 8.0),
                 child: CircleAvatar(
                   radius: 14,
-                  backgroundColor: index == 0
-                      ? purpleClr
-                      : index == 1
-                          ? pinkClr
-                          : yellowClr,
+                  backgroundColor: colors[index],
                   child: index == selectedColor
                       ? Center(
-                          child: Icon(Icons.done, color: Colors.white, size: 18),
+                          child:
+                              Icon(Icons.done, color: Colors.white, size: 18),
                         )
                       : Container(),
                 ),
@@ -305,7 +361,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         child: Icon(Icons.arrow_back_ios, size: 24, color: primaryClr),
       ),
       title: Text(
-        widget.task == null ? 'Add Task' : 'Update Task',
+        widget.task == null ? 'New Task' : 'Edit Task',
         style: GoogleFonts.lato(
           textStyle: TextStyle(
             fontSize: 26,
@@ -342,7 +398,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   _showTimePicker() {
     final currentTime = TimeOfDay.now();
     final oneHourLater = currentTime.replacing(
-      hour: (currentTime.hour + 1) % 24, 
+      hour: (currentTime.hour + 1) % 24,
       minute: currentTime.minute,
     );
 
