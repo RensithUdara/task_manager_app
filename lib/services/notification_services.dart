@@ -23,14 +23,14 @@ class NotificationService {
   bool _initialized = false;
 
   Future<void> initialize() async {
-    if (_initialized || kIsWeb) {
+    if (_initialized || !_supportsScheduling) {
       return;
     }
 
     tz_data.initializeTimeZones();
     try {
       final timezone = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timezone.identifier));
+      tz.setLocalLocation(tz.getLocation(timezone));
     } catch (error) {
       debugPrint('Unable to configure the local timezone: $error');
     }
@@ -62,7 +62,7 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    if (kIsWeb) {
+    if (!_supportsScheduling) {
       return false;
     }
 
@@ -90,7 +90,7 @@ class NotificationService {
   }
 
   Future<bool> notificationsEnabled() async {
-    if (kIsWeb) {
+    if (!_supportsScheduling) {
       return false;
     }
     final android = _plugin.resolvePlatformSpecificImplementation<
@@ -99,7 +99,7 @@ class NotificationService {
   }
 
   Future<int> pendingCount() async {
-    if (kIsWeb) {
+    if (!_supportsScheduling) {
       return 0;
     }
     return (await _plugin.pendingNotificationRequests()).length;
@@ -188,6 +188,15 @@ class NotificationService {
 
   void clearSelectedTask() {
     selectedTaskId.value = null;
+  }
+
+  bool get _supportsScheduling {
+    if (kIsWeb) {
+      return false;
+    }
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
   }
 
   void _handleNotificationResponse(NotificationResponse response) {
