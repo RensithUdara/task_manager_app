@@ -80,10 +80,8 @@ class Themes {
           foregroundColor: Colors.white,
           minimumSize: const Size(0, 50),
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle:
-              const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
