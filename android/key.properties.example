@@ -1,0 +1,6 @@
+# Copy this file to key.properties and replace each value with your upload key details.
+# Keep key.properties and the keystore private; both are excluded by .gitignore.
+storePassword=your-keystore-password
+keyPassword=your-key-password
+keyAlias=upload
+storeFile=../upload-keystore.jks

@@ -27,11 +27,26 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
-def hasReleaseKeystore = keystorePropertiesFile.exists()
-        && keystoreProperties['keyAlias']
-        && keystoreProperties['keyPassword']
-        && keystoreProperties['storeFile']
-        && keystoreProperties['storePassword']
+
+def releaseKeyAlias = keystoreProperties['keyAlias'] ?: System.getenv('ANDROID_KEY_ALIAS')
+def releaseKeyPassword = keystoreProperties['keyPassword'] ?: System.getenv('ANDROID_KEY_PASSWORD')
+def releaseStorePath = keystoreProperties['storeFile'] ?: System.getenv('ANDROID_KEYSTORE_PATH')
+def releaseStorePassword = keystoreProperties['storePassword'] ?: System.getenv('ANDROID_KEYSTORE_PASSWORD')
+def hasReleaseKeystore = releaseKeyAlias
+        && releaseKeyPassword
+        && releaseStorePath
+        && releaseStorePassword
+def releaseBuildRequested = gradle.startParameter.taskNames.any {
+    it.toLowerCase().contains('release')
+}
+
+if (releaseBuildRequested && !hasReleaseKeystore) {
+    throw new GradleException(
+            'Release signing is not configured. Create android/key.properties from ' +
+            'android/key.properties.example, or set the ANDROID_KEYSTORE_PATH, ' +
+            'ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, and ANDROID_KEY_PASSWORD ' +
+            'environment variables.')
+}
 
 android {
     namespace "com.example.task_manager_app"
@@ -66,10 +81,10 @@ android {
     signingConfigs {
        release {
            if (hasReleaseKeystore) {
-               keyAlias keystoreProperties['keyAlias']
-               keyPassword keystoreProperties['keyPassword']
-               storeFile file(keystoreProperties['storeFile'])
-               storePassword keystoreProperties['storePassword']
+               keyAlias releaseKeyAlias
+               keyPassword releaseKeyPassword
+               storeFile file(releaseStorePath)
+               storePassword releaseStorePassword
            }
        }
    }
