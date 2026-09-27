@@ -3,7 +3,7 @@ import 'package:task_manager_app/models/task_model.dart';
 
 class DBHelper {
   static Database? _db;
-  static final int _version = 1;
+  static final int _version = 2;
   static final String _tableName = 'tasks';
 
   // Initialize the database
@@ -18,8 +18,18 @@ class DBHelper {
         version: _version,
         onCreate: (db, version) {
           return db.execute(
-            "CREATE TABLE $_tableName(id INTEGER PRIMARY KEY AUTOINCREMENT, title STRING, note TEXT, date STRING, startTime STRING, endTime STRING, remind INTEGER, repeat STRING, color INTEGER, isCompleted INTEGER)",
+            "CREATE TABLE $_tableName(id INTEGER PRIMARY KEY AUTOINCREMENT, title STRING, note TEXT, date STRING, startTime STRING, endTime STRING, remind INTEGER, repeat STRING, color INTEGER, isCompleted INTEGER, priority TEXT NOT NULL DEFAULT 'Medium', reminderEnabled INTEGER NOT NULL DEFAULT 1)",
           );
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) {
+            await db.execute(
+              "ALTER TABLE $_tableName ADD COLUMN priority TEXT NOT NULL DEFAULT 'Medium'",
+            );
+            await db.execute(
+              'ALTER TABLE $_tableName ADD COLUMN reminderEnabled INTEGER NOT NULL DEFAULT 1',
+            );
+          }
         },
       );
     } catch (e) {
