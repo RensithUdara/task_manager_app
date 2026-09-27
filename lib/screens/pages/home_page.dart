@@ -14,7 +14,6 @@ import 'package:task_manager_app/models/task_model.dart';
 import 'package:task_manager_app/screens/pages/add_task_page.dart';
 import 'package:task_manager_app/screens/size_config.dart';
 import 'package:task_manager_app/screens/theme.dart';
-import 'package:task_manager_app/screens/widgets/custom_button.dart';
 import 'package:task_manager_app/screens/widgets/task_tile.dart';
 import 'package:task_manager_app/services/notification_services.dart';
 import 'package:task_manager_app/services/theme_services.dart';
@@ -66,21 +65,24 @@ class _HomePageState extends State<HomePage> {
       appBar: appBar(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: openAddTask,
-        backgroundColor: primaryClr,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('Task'),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New task'),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            addTaskBar(),
-            summaryPanel(),
-            searchAndFilters(),
-            dateBar(),
-            const SizedBox(height: 8),
-            showTasks(),
-          ],
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Column(
+              children: [
+                addTaskBar(),
+                summaryPanel(),
+                searchAndFilters(),
+                dateBar(),
+                const SizedBox(height: 12),
+                showTasks(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -89,33 +91,56 @@ class _HomePageState extends State<HomePage> {
   AppBar appBar() {
     return AppBar(
       backgroundColor: context.theme.scaffoldBackgroundColor,
-      titleSpacing: 0,
-      leading: IconButton(
-        tooltip: 'Switch theme',
-        onPressed: () {
-          ThemeService().switchTheme();
-          notifyHelper.displayNotification(
-            title: 'Theme Changed',
-            body: Get.isDarkMode
-                ? 'Light theme activated.'
-                : 'Dark theme activated.',
-          );
-        },
-        icon: Icon(
-          Get.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-          color: Get.isDarkMode ? Colors.white : darkGreyClr,
+      toolbarHeight: 72,
+      leadingWidth: 72,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: primaryClr,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.done_all_rounded, color: Colors.white),
         ),
       ),
-      title: Text(
-        'TaskFlow',
-        style: headingTextStyle.copyWith(color: primaryClr),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'TaskFlow',
+            style: headingTextStyle.copyWith(fontSize: 20),
+          ),
+          Text(
+            'Plan with clarity',
+            style: body2TextStyle.copyWith(fontSize: 12),
+          ),
+        ],
       ),
-      actions: const [
+      actions: [
+        IconButton(
+          tooltip: 'Switch theme',
+          onPressed: () {
+            ThemeService().switchTheme();
+            notifyHelper.displayNotification(
+              title: 'Theme changed',
+              body: Get.isDarkMode
+                  ? 'Light theme activated.'
+                  : 'Dark theme activated.',
+            );
+          },
+          icon: Icon(
+            Get.isDarkMode
+                ? Icons.light_mode_outlined
+                : Icons.dark_mode_outlined,
+          ),
+        ),
         Padding(
-          padding: EdgeInsets.only(right: 16),
+          padding: const EdgeInsets.only(left: 4, right: 20),
           child: CircleAvatar(
-            radius: 22,
-            backgroundImage: AssetImage('images/logo.jpg'),
+            radius: 19,
+            backgroundColor:
+                primaryClr.withValues(alpha: Get.isDarkMode ? 0.24 : 0.12),
+            child: const Icon(Icons.person_outline_rounded, color: primaryClr),
           ),
         ),
       ],
@@ -124,30 +149,28 @@ class _HomePageState extends State<HomePage> {
 
   Widget addTaskBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  DateFormat.EEEE().format(DateTime.now()),
-                  style: subTitleTextStle,
+                  'Today\'s focus',
+                  style: body2TextStyle.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: primaryClr,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  DateFormat.yMMMMd().format(DateTime.now()),
-                  style: headingTextStyle,
+                  DateFormat('EEEE, MMM d').format(DateTime.now()),
+                  style: headingTextStyle.copyWith(fontSize: 26),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-          ),
-          CustomButton(
-            label: '+ Add',
-            onTap: openAddTask,
           ),
         ],
       ),
@@ -165,17 +188,17 @@ class _HomePageState extends State<HomePage> {
 
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Get.isDarkMode ? darkHeaderClr : Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          color: Get.isDarkMode
+              ? const Color(0xFF232A36)
+              : const Color(0xFF222B45),
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(
-                alpha: Get.isDarkMode ? 0.2 : 0.06,
-              ),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
+              color: const Color(0xFF222B45).withValues(alpha: 0.14),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -189,12 +212,14 @@ class _HomePageState extends State<HomePage> {
                     dayTasks.isEmpty
                         ? 'Plan this day'
                         : '$completed of ${dayTasks.length} tasks complete',
-                    style: titleTextStle,
+                    style: titleTextStle.copyWith(color: Colors.white),
                   ),
                 ),
                 Text(
                   '${(progress * 100).round()}%',
-                  style: titleTextStle.copyWith(color: primaryClr),
+                  style: titleTextStle.copyWith(
+                    color: const Color(0xFF8FB2FF),
+                  ),
                 ),
               ],
             ),
@@ -204,9 +229,9 @@ class _HomePageState extends State<HomePage> {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 8,
-                backgroundColor:
-                    Get.isDarkMode ? Colors.white12 : Colors.grey.shade200,
-                valueColor: const AlwaysStoppedAnimation<Color>(primaryClr),
+                backgroundColor: Colors.white12,
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(Color(0xFF7EA5FF)),
               ),
             ),
             const SizedBox(height: 14),
@@ -223,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                         : 'Next: ${nextTask.title}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: body2TextStyle,
+                    style: body2TextStyle.copyWith(color: Colors.white70),
                   ),
                 ),
               ],
@@ -249,7 +274,10 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
-          Text('$value $label', style: bodyTextStyle),
+          Text(
+            '$value $label',
+            style: bodyTextStyle.copyWith(color: Colors.white),
+          ),
         ],
       ),
     );
@@ -257,7 +285,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget searchAndFilters() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
       child: Column(
         children: [
           TextField(
@@ -266,7 +294,7 @@ class _HomePageState extends State<HomePage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: Get.isDarkMode ? darkHeaderClr : Colors.white,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: searchTerm.isEmpty
                   ? null
                   : IconButton(
@@ -274,13 +302,14 @@ class _HomePageState extends State<HomePage> {
                       icon: const Icon(Icons.close),
                       onPressed: searchController.clear,
                     ),
-              hintText: 'Search tasks and notes',
-              hintStyle: subTitleTextStle,
+              hintText: 'Search tasks',
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Get.isDarkMode ? Colors.white12 : lightBorderClr,
+                ),
               ),
             ),
           ),
@@ -325,14 +354,28 @@ class _HomePageState extends State<HomePage> {
       ),
       backgroundColor: Get.isDarkMode ? darkHeaderClr : Colors.white,
       side: BorderSide(
-        color: isSelected ? primaryClr : Colors.transparent,
+        color: isSelected
+            ? primaryClr
+            : Get.isDarkMode
+                ? Colors.white12
+                : lightBorderClr,
       ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      showCheckmark: false,
     );
   }
 
   Widget dateBar() {
     return Container(
-      padding: const EdgeInsets.only(bottom: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+      decoration: BoxDecoration(
+        color: Get.isDarkMode ? darkHeaderClr : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Get.isDarkMode ? Colors.white12 : lightBorderClr,
+        ),
+      ),
       child: DatePicker(
         DateTime.now().subtract(const Duration(days: 2)),
         height: 92,
@@ -380,7 +423,7 @@ class _HomePageState extends State<HomePage> {
 
         return AnimationLimiter(
           child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 92, top: 4),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 92),
             itemCount: visibleTasks.length,
             itemBuilder: (context, index) {
               final task = visibleTasks[index];
@@ -424,11 +467,16 @@ class _HomePageState extends State<HomePage> {
                   child: SlideAnimation(
                     verticalOffset: 24,
                     child: FadeInAnimation(
-                      child: GestureDetector(
-                        onTap: () {
-                          showTaskActions(context, task);
-                        },
-                        child: TaskTile(task),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: TaskTile(
+                          task,
+                          onTap: () => showTaskActions(context, task),
+                          onToggle: () => taskController.setTaskCompletion(
+                            task.id!,
+                            task.isCompleted == 0,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -451,7 +499,10 @@ class _HomePageState extends State<HomePage> {
     return Container(
       alignment: alignment,
       padding: EdgeInsets.only(left: isRight ? 0 : 24, right: isRight ? 24 : 0),
-      color: color,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         mainAxisAlignment:
             isRight ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -656,12 +707,6 @@ class _HomePageState extends State<HomePage> {
             style: subTitleTextStle,
           ),
         ),
-        if (!hasSearch)
-          TextButton.icon(
-            onPressed: openAddTask,
-            icon: const Icon(Icons.add),
-            label: const Text('Create task'),
-          ),
         const SizedBox(height: 84),
       ],
     );
