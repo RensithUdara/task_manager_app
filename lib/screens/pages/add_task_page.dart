@@ -28,9 +28,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
   int selectedColor = 0;
   int selectedRemind = 5;
   String selectedRepeat = 'None';
+  String selectedPriority = 'Medium';
+  bool reminderEnabled = true;
 
   List<int> remindList = [5, 10, 15, 20, 30, 60];
   List<String> repeatList = ['None', 'Daily', 'Weekly', 'Monthly'];
+  List<String> priorityList = ['Low', 'Medium', 'High'];
 
   @override
   void initState() {
@@ -58,6 +61,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
       selectedRemind = widget.task!.remind;
       selectedRepeat = widget.task!.repeat;
       selectedColor = widget.task!.color;
+      selectedPriority = widget.task!.priority;
+      reminderEnabled = widget.task!.reminderEnabled;
     }
   }
 
@@ -192,15 +197,46 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   ),
                 ],
               ),
-              InputField(
-                title: "Remind",
-                hint: "$selectedRemind minutes early",
-                widget: remindDropDown(),
+              Container(
+                margin: const EdgeInsets.only(top: 16),
+                decoration: BoxDecoration(
+                  color: Get.isDarkMode ? Colors.black12 : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey),
+                ),
+                child: SwitchListTile(
+                  value: reminderEnabled,
+                  activeThumbColor: primaryClr,
+                  title: Text('Task reminder', style: titleTextStle),
+                  subtitle: Text(
+                    reminderEnabled
+                        ? 'Notify me before this task starts'
+                        : 'No notification will be scheduled',
+                    style: body2TextStyle,
+                  ),
+                  secondary: const Icon(Icons.notifications_active_outlined),
+                  onChanged: (value) {
+                    setState(() {
+                      reminderEnabled = value;
+                    });
+                  },
+                ),
               ),
+              if (reminderEnabled)
+                InputField(
+                  title: "Remind",
+                  hint: "$selectedRemind minutes early",
+                  widget: remindDropDown(),
+                ),
               InputField(
                 title: "Repeat",
                 hint: selectedRepeat,
                 widget: repeatDropDown(),
+              ),
+              InputField(
+                title: "Priority",
+                hint: selectedPriority,
+                widget: priorityDropDown(),
               ),
               SizedBox(height: 18.0),
               Row(
@@ -222,10 +258,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
     );
   }
 
-  validateInputs() {
+  Future<void> validateInputs() async {
     if (titleController.text.trim().isNotEmpty) {
-      addOrUpdateTask();
-      Get.back();
+      await addOrUpdateTask();
+      if (mounted) {
+        Get.back();
+      }
     } else {
       Get.snackbar(
         "Required",
@@ -253,10 +291,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
           repeat: selectedRepeat,
           color: selectedColor,
           isCompleted: 0,
+          priority: selectedPriority,
+          reminderEnabled: reminderEnabled,
         ),
       );
     } else {
-      taskController.updateTask(
+      await taskController.updateTask(
         Task(
           id: widget.task!.id,
           note: noteController.text.trim(),
@@ -268,6 +308,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
           repeat: selectedRepeat,
           color: selectedColor,
           isCompleted: widget.task!.isCompleted,
+          priority: selectedPriority,
+          reminderEnabled: reminderEnabled,
         ),
       );
     }
@@ -307,6 +349,27 @@ class _AddTaskPageState extends State<AddTaskPage> {
         });
       },
       items: repeatList.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget priorityDropDown() {
+    return DropdownButton<String>(
+      icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+      iconSize: 32,
+      elevation: 4,
+      style: GoogleFonts.lato(textStyle: subTitleTextStle),
+      underline: Container(height: 0),
+      onChanged: (String? newValue) {
+        setState(() {
+          selectedPriority = newValue!;
+        });
+      },
+      items: priorityList.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
