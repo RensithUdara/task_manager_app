@@ -1,4 +1,6 @@
 class Task {
+  static const Object _unset = Object();
+
   int? id;
   String title;
   String note;
@@ -9,6 +11,8 @@ class Task {
   int color;
   int remind;
   String repeat;
+  String priority;
+  bool reminderEnabled;
 
   Task({
     this.id,
@@ -21,6 +25,8 @@ class Task {
     required this.color,
     required this.remind,
     required this.repeat,
+    this.priority = 'Medium',
+    this.reminderEnabled = true,
   });
 
   Task.fromJson(Map<String, dynamic> json)
@@ -33,12 +39,12 @@ class Task {
         endTime = json['endTime'],
         color = json['color'],
         remind = json['remind'],
-        repeat = json['repeat'];
-
-  String? get priority => null;
+        repeat = json['repeat'],
+        priority = (json['priority'] as String?) ?? 'Medium',
+        reminderEnabled = (json['reminderEnabled'] as int? ?? 1) == 1;
 
   Task copyWith({
-    int? id,
+    Object? id = _unset,
     String? title,
     String? note,
     int? isCompleted,
@@ -48,9 +54,11 @@ class Task {
     int? color,
     int? remind,
     String? repeat,
+    String? priority,
+    bool? reminderEnabled,
   }) {
     return Task(
-      id: id ?? this.id,
+      id: identical(id, _unset) ? this.id : id as int?,
       title: title ?? this.title,
       note: note ?? this.note,
       isCompleted: isCompleted ?? this.isCompleted,
@@ -60,6 +68,8 @@ class Task {
       color: color ?? this.color,
       remind: remind ?? this.remind,
       repeat: repeat ?? this.repeat,
+      priority: priority ?? this.priority,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
     );
   }
 
@@ -75,6 +85,8 @@ class Task {
     data['color'] = color;
     data['remind'] = remind;
     data['repeat'] = repeat;
+    data['priority'] = priority;
+    data['reminderEnabled'] = reminderEnabled ? 1 : 0;
     return data;
   }
 }
