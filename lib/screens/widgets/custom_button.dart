@@ -1,33 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager_app/screens/theme.dart';
 
 class CustomButton extends StatelessWidget {
-  final Function? onTap;
-  final String? label;
+  final VoidCallback? onTap;
+  final String label;
+  final IconData? icon;
+  final double? width;
 
-  CustomButton({
+  const CustomButton({
+    super.key,
     this.onTap,
-    this.label,
+    required this.label,
+    this.icon,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap as void Function()?,
-      child: Container(
-        height: 50,
-        width: 130,
-        decoration: BoxDecoration(
-          color: primaryClr,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Center(
-          child: Text(
-            label ?? "",
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ),
-    );
+    final button = icon == null
+        ? FilledButton(onPressed: onTap, child: Text(label))
+        : FilledButton.icon(
+            onPressed: onTap,
+            icon: Icon(icon, size: 19),
+            label: Text(label),
+          );
+
+    return SizedBox(width: width, height: 50, child: button);
   }
 }
