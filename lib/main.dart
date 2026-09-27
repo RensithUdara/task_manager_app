@@ -5,11 +5,13 @@ import 'package:task_manager_app/db/db_helper.dart';
 import 'package:task_manager_app/screens/pages/home_page.dart';
 import 'package:task_manager_app/screens/theme.dart';
 import 'package:task_manager_app/services/theme_services.dart';
+import 'package:task_manager_app/services/notification_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DBHelper.initDb();
   await GetStorage.init();
+  await NotificationService.instance.initialize();
   runApp(MyApp());
 }
 
