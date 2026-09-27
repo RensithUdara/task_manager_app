@@ -13,7 +13,9 @@ class TaskController extends GetxController {
 
   // Add task to the table
   Future<int> addTask(Task task) async {
-    return await DBHelper.insert(task);
+    final id = await DBHelper.insert(task);
+    getTasks();
+    return id;
   }
 
   // Fetch all the data from the table
@@ -34,9 +36,23 @@ class TaskController extends GetxController {
     getTasks();
   }
 
+  void setTaskCompletion(int id, bool isCompleted) async {
+    await DBHelper.updateCompletion(id, isCompleted ? 1 : 0);
+    getTasks();
+  }
+
   // Update an existing task in the table
   void updateTask(Task task) async {
     await DBHelper.updateTask(task);
     getTasks();
+  }
+
+  Future<int> duplicateTask(Task task) async {
+    final duplicatedTask = task.copyWith(
+      id: null,
+      title: '${task.title} Copy',
+      isCompleted: 0,
+    );
+    return addTask(duplicatedTask);
   }
 }
